@@ -39,7 +39,9 @@ def train_step(points, model, optimizer):
     loss, preds = step(points, model)
 
     # TODO : Implement backpropagation using optimizer and loss
-
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
     return loss, preds
 
 
@@ -136,7 +138,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.gpu = 0
     args.epochs = 100
-    args.batch_size = 32
+    args.batch_size = 2
     args.lr = 1e-3
     args.save = True
 

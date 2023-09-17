@@ -46,6 +46,9 @@ def train_step(points, pc_labels, class_labels, model, optimizer, train_acc_metr
     )
     train_batch_acc = train_acc_metric(preds, pc_labels.to(device))
 
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
     # TODO : Implement backpropagation using optimizer and loss
 
     return loss, train_batch_acc
@@ -66,7 +69,7 @@ def validation_step(
 def main(args):
     global device
     device = "cpu" if args.gpu == -1 else f"cuda:{args.gpu}"
-
+    print("device : ", device)
     model = PointNetPartSeg()
     model = model.to(device)
 
@@ -165,21 +168,21 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PointNet ShapeNet Part Segmentation")
-    parser.add_argument(
-        "--gpu", type=int, default=0, help="gpu device num. -1 is for cpu"
-    )
+    # parser.add_argument(
+    #     "--gpu", type=int, default=0, help="gpu device num. -1 is for cpu"
+    # )
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument(
-        "--save", action="store_true", help="Whether to save topk checkpoints or not"
-    )
+    # parser.add_argument(
+    #     "--save", action="store_true", help="Whether to save topk checkpoints or not"
+    # )
 
     args = parser.parse_args()
     args.gpu = 0
-    args.epochs = 100
-    args.batch_size = 32
-    args.lr = 1e-3
+    # args.epochs = 100
+    # args.batch_size = 32
+    # args.lr = 1e-3
     args.save = True
 
     main(args)
