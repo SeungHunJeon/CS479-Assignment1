@@ -178,7 +178,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.gpu = 0
     args.epochs = 100
-    args.batch_size = 2
+    args.batch_size = 32
     args.lr = 1e-3
     args.save = True
 
