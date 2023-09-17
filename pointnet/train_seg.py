@@ -26,9 +26,17 @@ def step(points, pc_labels, class_labels, model):
     
     # TODO : Implement step function for segmentation.
 
-    loss = None
-    logits = None
-    preds = None
+    true_pc_prob = torch.zeros(points.shape[0], model.num_classes, points.shape[1]) # [B, C, N]
+    true_pc_prob.scatter_(1, pc_labels.unsqueeze(1), 1)
+    true_pc_prob = true_pc_prob.to(device)
+
+    logits, stn3_matrix, stn64_matrix = model(points.to(device))
+    preds = torch.argmax(logits, dim=1)
+    criterion = torch.nn.CrossEntropyLoss()
+    loss = criterion(logits, true_pc_prob)
+    # orthogonal_loss = get_orthogonal_loss(stn3_matrix) + get_orthogonal_loss(stn64_matrix)
+    # loss = loss + orthogonal_loss
+
     return loss, logits, preds
 
 
@@ -86,6 +94,7 @@ def main(args):
 
     for epoch in range(args.epochs):
         # training step
+        torch.cuda.empty_cache()
         model.train()
         pbar = tqdm(train_dl)
         train_epoch_loss = []
@@ -169,7 +178,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.gpu = 0
     args.epochs = 100
-    args.batch_size = 128
+    args.batch_size = 2
     args.lr = 1e-3
     args.save = True
 

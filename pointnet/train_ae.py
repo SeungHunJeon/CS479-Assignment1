@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import argparse
 from datetime import datetime
 from tqdm import tqdm
-from model import PointNetAutoEncoder
+from model import PointNetAutoEncoder, get_orthogonal_loss
 from dataloaders.modelnet import get_data_loaders
 from utils.metrics import Accuracy
 from utils.model_checkpoint import CheckpointManager
@@ -23,9 +23,14 @@ def step(points, model):
     # TODO : Implement step function for AutoEncoder. 
     # Hint : Use chamferDist defined in above
     # Hint : You can compute chamfer distance between two point cloud pc1 and pc2 by chamfer_distance(pc1, pc2)
-    
-    preds = None
-    loss = None
+    input = points.to(device)
+    preds, stn3_matrix, stn64_matrix = model(input)
+    loss = chamfer_distance(preds, input)[0]
+    orthogonal_loss = get_orthogonal_loss(stn3_matrix) + get_orthogonal_loss(stn64_matrix)
+    loss = loss + orthogonal_loss
+
+    # preds = None
+    # loss = None
 
     return loss, preds
 
@@ -131,7 +136,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.gpu = 0
     args.epochs = 100
-    args.batch_size = 128
+    args.batch_size = 32
     args.lr = 1e-3
     args.save = True
 
